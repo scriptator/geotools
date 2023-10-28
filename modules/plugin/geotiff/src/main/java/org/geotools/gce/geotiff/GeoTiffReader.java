@@ -35,6 +35,7 @@
 package org.geotools.gce.geotiff;
 
 import it.geosolutions.imageio.core.BasicAuthURI;
+import it.geosolutions.imageio.core.ExtCaches;
 import it.geosolutions.imageio.maskband.DatasetLayout;
 import it.geosolutions.imageio.pam.PAMDataset;
 import it.geosolutions.imageio.plugins.tiff.TIFFImageReadParam;
@@ -1175,5 +1176,16 @@ public class GeoTiffReader extends AbstractGridCoverage2DReader implements GridC
     public MaskOverviewProvider getMaskOverviewProvider() {
         // the object is read only once initialized, not dangerous
         return maskOvrProvider;
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+
+        if (source instanceof CogSourceSPIProvider) {
+            // clear COG header cache
+            BasicAuthURI uri = ((CogSourceSPIProvider) source).getCogUri();
+            ExtCaches.cleanForResource(uri.getUri().toString());
+        }
     }
 }
